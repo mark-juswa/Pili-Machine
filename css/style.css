@@ -1,0 +1,1266 @@
+@import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Pixelify+Sans:wght@400..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+}
+
+a, ul, li{
+    text-decoration: none;
+    list-style: none;
+}
+
+
+/*  ----- NAV BAR -----  */
+
+    .navbar {
+        padding: 1rem 2rem;
+        padding-top: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 10vh;
+    }
+
+    .nav-list {
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        gap: clamp(3rem, 10vw, 9rem); /* Responsive gap using clamp */
+    }
+    
+    .nav-link {
+        text-decoration: none;
+        color: black; 
+        transition: color 0.3s ease-in-out;
+    }
+
+    .nav-item.active .nav-link {
+        color: black;
+    }
+
+
+    .nav-item {
+        position: relative;
+        font-size: 1rem;
+        font-weight: bold;
+        color: black;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: color 0.3s ease-in-out;
+    }
+
+    .nav-item::after {
+        content: '';
+        position: absolute;
+        bottom: -5px; 
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 3px;
+        background-color: black;
+        box-shadow: 0 0 10px black;
+        transition: width 0.3s ease-in-out;
+    }
+
+    .nav-item:hover::after {
+        width: 100%;
+    }
+
+    .nav-item:hover {
+        color: black;
+    }
+
+    
+.hamburger-nav{
+    display: flex; 
+justify-content: flex-end; 
+}
+
+@media (min-width: 768px) {
+    .hamburger-nav{
+        display: none;         
+    }
+ }
+
+ .small-nav{
+    display: inline-block; 
+    position: relative; 
+ }
+
+.menu-logo{
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
+    height: 30px;
+    width: 30px;
+}
+
+.drop-down-menu{
+    position: absolute; 
+    right: 0; 
+    margin-top: 0.5rem; 
+    z-index: 10;
+}
+
+.drop-down-menu li a {
+    color: var(--custom-gray);
+    text-decoration: none; 
+    transition: color 0.2s ease-in-out;
+}
+
+@media (min-width: 768px) { 
+    .drop-down-menu{
+        display: flex;
+    } 
+ }
+.smallnav-container{
+    border-radius: 0.5rem; 
+    background-color: white; 
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+}
+
+.smallnav-links{
+    font-family: 'Pixelify Sans', sans-serif;
+    font-weight: 500;
+    display: block; 
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem; 
+    padding-left: 1rem;
+    padding-right: 1rem; 
+}
+
+/* Responsive Behavior: Switch between nav-links and hamburger-nav */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none; /* Hide the main nav */
+    }
+
+    .hamburger-nav {
+        display: flex; /* Show the hamburger nav */
+    }
+}
+
+/* Additional Styles for Dropdown Transition */
+#dropdown-menu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out;
+}
+
+.hidden {
+    max-height: 0;
+}
+
+/* Responsive Design for Hamburger Menu */
+@media (max-width: 600px) {
+    .nav-list {
+        display: none; /* Hide main nav-list on small screens */
+    }
+
+    .hamburger-nav {
+        display: flex;
+    }
+
+    #dropdown-menu {
+        display: block; /* Ensure the dropdown is visible when not hidden */
+        position: absolute;
+        top: 70px; /* Adjust based on your nav height */
+        left: 0;
+        right: 0;
+        background: white;
+    }
+
+    .smallnav-container li {
+        padding: 15px;
+        text-align: center;
+    }
+}
+
+@media (min-width: 601px) {
+    .nav-list {
+        display: flex; /* Show the main navigation */
+    }
+
+    .hamburger-nav {
+        display: none; /* Hide the hamburger menu */
+    }
+}
+
+
+
+
+/*  ----- LANDING PAGE -----  */
+
+
+.hero-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;      
+    max-width: 1140px;
+    margin: 100px auto 0;      
+    flex-wrap: wrap;
+    gap: 0rem;                 
+}
+
+
+.hero-content {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+
+.headline {
+    font-size: 4.5rem;
+    font-weight: 700;
+    line-height: 100%;
+    margin-bottom: 1rem;
+    color: #000;
+}
+
+.subheadline h2 {
+    padding-top: 5rem;
+    font-size: 2.5rem;
+    line-height: 95%;
+    font-weight: 600;
+    margin: 0;
+}
+
+.subheadline p {
+    font-size: 1rem;
+    color: #4e4e4e;
+    margin: 0.5rem 0 1.5rem;
+}
+
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    background-color: #d7ff5c;
+    color: #000;
+    padding: 0.75rem 1.25rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.cta-button span {
+    margin-left: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.cta-button:hover {
+    background-color: #c3ef4a;
+}
+
+.hero-image {
+    flex: 1;
+    text-align: center;
+}
+
+.hero-image img {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    transition: all 0.3s ease;
+}
+
+
+
+@media screen and (max-width: 1440px) {
+    .hero-section {
+        padding: 2rem;
+    }   
+
+    .headline{
+        font-size: 3.5rem;
+    }
+    .hero-image {
+        margin-top: 2rem;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .hero-section {
+        padding: 2rem;
+    }   
+    .hero-image img {
+        max-width: 800px;
+    }
+}
+
+
+
+@media screen and (max-width: 768px) {
+    .hero-section {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-image {
+        margin-top: 2rem;
+    }
+
+    .headline {
+        font-size: 3rem;
+    }
+}
+
+
+
+
+
+/*  ----- DASHBOARD -----  */
+
+/* Add these new rules to your existing style.css */
+
+/* Dashboard Specific Styles */
+.dashboard-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.dashboard-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: #18191D;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #34363C;
+}
+
+/* Chart Card */
+.chart-card {
+    grid-column: span 2; /* Spans two columns on desktop */
+    min-height: 300px; /* Ensure chart has enough space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Production History Card */
+.production-history-card {
+    /* Auto placed */
+}
+
+.production-history-card table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.production-history-card th,
+.production-history-card td {
+    padding: 0.8rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95rem;
+    color: #525459;
+}
+
+.production-history-card th {
+    font-weight: 600;
+    color: #18191D;
+}
+
+.production-history-card tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Metric Cards */
+.main-metric {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #18191D;
+    margin-top: 0.5rem;
+    margin-bottom: 0.2rem;
+}
+
+.main-metric.currency {
+    color: #18191D; /* Match the design's currency color */
+}
+
+.sub-metric {
+    font-size: 0.9rem;
+    color: #525459;
+    margin-bottom: 0.5rem;
+}
+
+.source {
+    font-size: 0.85rem;
+    color: #34363C;
+    font-weight: 500;
+    margin-top: 1rem;
+}
+
+/* Specific card adjustments for design */
+.input-purchased-card .main-metric { margin-top: 0; }
+.input-purchased-card .sub-metric { margin-top: 0.5rem; }
+
+.pili-cracked-card .main-metric { order: 2; margin-top: 0.5rem; }
+.pili-cracked-card .sub-metric { order: 1; margin-bottom: 0.2rem; }
+.pili-cracked-card { display: flex; flex-direction: column; }
+
+
+/* Responsive Adjustments for Dashboard Grid */
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* Stack all cards on smaller screens */
+    }
+
+    .chart-card {
+        grid-column: auto; /* Reset column span */
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-title {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+    }
+
+    .main-metric {
+        font-size: 2rem;
+    }
+}
+
+
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* 50% dark background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's on top */
+    transition: opacity 0.3s ease;
+    opacity: 1; /* Default to visible, JS will handle hidden class */
+}
+
+.modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none; /* Make it unclickable when hidden */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fff; /* White background for the card */
+    padding: 2.5rem; /* Increased padding */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    width: 90%; /* Responsive width */
+    max-width: 450px; /* Max width for larger screens */
+    text-align: center;
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.hidden .modal-content {
+    transform: translateY(-50px); /* Animate slightly upwards when hidden */
+}
+
+
+.modal-content h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #34363C;
+}
+
+.modal-content p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    color: #525459;
+}
+
+.modal-content .input-field {
+    width: calc(100% - 2rem); /* Account for padding */
+    padding: 0.8rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 1.5rem; /* Space after input */
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.modal-buttons .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.modal-buttons .btn-crack {
+    background-color: #2F6BFD; /* Blue */
+    color: #fff;
+}
+
+.modal-buttons .btn-crack:hover {
+    background-color: #265bd1;
+}
+
+.modal-buttons .btn-cancel {
+    background-color: #ccc; /* Gray */
+    color: #34363C;
+}
+
+.modal-buttons .btn-cancel:hover {
+    background-color: #bbb;
+}
+
+/* Ensure the expected sales card is targetable for click */
+.expected-sales-card {
+    cursor: pointer; /* Indicate it's clickable */
+}
+/* ... (existing CSS) ... */
+
+/* Message Box for Modal */
+.message-box {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.message-box.hidden {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    overflow: hidden;
+    transform: translateY(-10px);
+}
+
+.success-message {
+    background-color: #d4edda; /* Light green */
+    color: #155724; /* Dark green text */
+    border: 1px solid #c3e6cb;
+}
+
+.error-message {
+    background-color: #f8d7da; /* Light red */
+    color: #721c24; /* Dark red text */
+    border: 1px solid #f5c6cb;
+}
+
+
+
+
+
+
+
+
+
+
+
+/*  ----- PRODUCTION -----  */
+
+
+/* Production Section Styles */
+.production-container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.production-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: #18191D;
+}
+
+.production-header {
+    display: flex;
+    justify-content: flex-start; /* Align items to the start */
+    gap: 2rem; /* Space between status items */
+    margin-bottom: 2rem;
+    align-items: center;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Space between icon and text */
+}
+
+.status-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.status-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #34363C;
+}
+
+.production-card {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.input-section,
+.additional-info-section {
+    margin-bottom: 1.5rem;
+}
+
+.input-field,
+.textarea-field {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    color: #34363C;
+    margin-top: 0.5rem;
+}
+
+.input-field::placeholder,
+.textarea-field::placeholder {
+    color: #9CA3AF;
+}
+
+.input-field:focus,
+.textarea-field:focus {
+    outline: none;
+    border-color: #2F6BFD;
+    box-shadow: 0 0 0 3px rgba(47, 107, 253, 0.2);
+}
+
+.textarea-field {
+    min-height: 80px;
+    resize: vertical; /* Allow vertical resizing */
+}
+
+.status-line {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: #525459;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+}
+
+.status-label {
+    font-weight: 500;
+}
+
+.status-value {
+    font-weight: 700;
+    color: #18191D;
+    margin-left: 0.25rem;
+}
+
+.description-label {
+    font-size: 0.95rem;
+    color: #525459;
+    margin-top: 0.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap; /* Allow wrapping */
+}
+
+.btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-crack {
+    background-color: #D7FF5C; /* Green-yellow from dashboard CTA */
+    color: #18191D;
+}
+
+.btn-crack:hover {
+    background-color: #c3ef4a;
+}
+
+.btn-cancel {
+    background-color: #F3F4F6; /* Light gray */
+    color: #34363C;
+}
+
+.btn-cancel:hover {
+    background-color: #E5E7EB;
+}
+
+.arrow {
+    font-size: 1.1rem;
+}
+
+.activity-log-section {
+    margin-top: 2rem;
+    border-top: 1px solid #EEE;
+    padding-top: 1.5rem;
+}
+
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.activity-table th,
+.activity-table td {
+    padding: 0.8rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+    color: #525459;
+}
+
+.activity-table th {
+    font-weight: 600;
+    color: #18191D;
+}
+
+.activity-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.delete-icon {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.delete-icon:hover {
+    opacity: 1;
+}
+
+.price-input-wrapper {
+    margin-bottom: 1rem;
+}
+
+.price-label {
+    display: block;
+    font-size: 0.95rem;
+    color: #525459;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+
+/* Responsive adjustments for Production page */
+@media (max-width: 768px) {
+    .production-title {
+        text-align: center;
+    }
+    .production-header {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    .status-line {
+        justify-content: center;
+        text-align: center;
+    }
+    .action-buttons {
+        justify-content: center;
+    }
+    .btn {
+        width: 100%; /* Make buttons full width on small screens */
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .production-container {
+        padding: 1rem;
+    }
+    .production-card {
+        padding: 1rem;
+    }
+    .production-title {
+        font-size: 2rem;
+    }
+    .status-text {
+        font-size: 1rem;
+    }
+    .input-field,
+    .textarea-field,
+    .btn {
+        font-size: 0.9rem;
+        padding: 0.7rem 1rem;
+    }
+    .activity-table th,
+    .activity-table td {
+        font-size: 0.8rem;
+        padding: 0.6rem 0.3rem;
+    }
+}
+
+/* ... (existing modal styles for priceModal) ... */
+
+/* Specific styles for the Success Modal */
+.modal-icon {
+    width: 60px; /* Adjust size as needed */
+    height: 60px;
+    margin-bottom: 1rem;
+}
+
+.success-title {
+    color: #155724; /* Dark green for success title */
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+}
+
+.success-message-text {
+    font-size: 1.2rem;
+    color: #34363C;
+    margin-bottom: 1.5rem;
+}
+
+/* Ensure the OK button also has consistent styling */
+#closeCrackSuccessBtn {
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+}
+
+
+
+
+
+
+
+
+/* Reports Page Specific Styles */
+.reports-container {
+    padding: 2rem;
+    max-width: 1000px; /* Max width for reports content */
+    margin: 2rem auto;
+}
+
+.reports-title {
+    font-size: clamp(2.5rem, 6vw, 3rem); /* Responsive title font size */
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: #18191D;
+    text-align: center; /* Center title by default */
+}
+
+.filter-buttons {
+    display: flex;
+    justify-content: center; /* Center filter buttons */
+    gap: 0.75rem; /* Space between buttons */
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+}
+
+.btn-filter {
+    background-color: #F3F4F6; /* Light gray background */
+    color: #34363C; /* Darker text */
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-filter:hover {
+    background-color: #E5E7EB;
+}
+
+.btn-filter.active {
+    background-color: #D7FF5C; /* Green-yellow active state */
+    color: #18191D;
+}
+
+.btn-filter.active:hover {
+    background-color: #c3ef4a;
+}
+
+.report-card {
+    padding: 1.5rem; /* Consistent card padding */
+}
+
+.reports-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.9rem; /* Base font size for table */
+}
+
+.reports-table th,
+.reports-table td {
+    padding: 0.8rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    color: #525459;
+}
+
+.reports-table th {
+    font-weight: 600;
+    color: #18191D;
+}
+
+.reports-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* table-responsive class for horizontal scrolling on small screens */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1.5rem; /* Space before export buttons */
+}
+
+.export-button-container {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 1rem; /* Space between buttons */
+    margin-top: 1.5rem;
+    flex-wrap: wrap; /* Allow buttons to wrap */
+}
+
+.btn-export {
+    background-color: #D7FF5C; /* Green-yellow for export buttons */
+    color: #18191D;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: inline-flex; /* To align icon and text */
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap; /* Prevent text from wrapping inside button */
+}
+
+.btn-export:hover {
+    background-color: #c3ef4a;
+}
+
+.btn-export-excel {
+    background-color: #4CAF50; /* A different color for Excel */
+    color: white;
+}
+.btn-export-excel:hover {
+    background-color: #45a049;
+}
+
+
+.export-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Responsive adjustments for Reports Page */
+@media (max-width: 768px) {
+    .reports-container {
+        padding: 1rem; /* Smaller padding on small screens */
+    }
+
+    .reports-title {
+        font-size: clamp(2rem, 8vw, 2.5rem);
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-buttons {
+        gap: 0.5rem; /* Tighter gap for buttons */
+        justify-content: center;
+    }
+
+    .btn-filter {
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .report-card {
+        padding: 1rem;
+    }
+
+    .reports-table th,
+    .reports-table td {
+        font-size: 0.8rem; /* Smaller font for table content */
+        padding: 0.6rem 0.3rem; /* Tighter padding for table cells */
+    }
+
+    .export-button-container {
+        flex-direction: column; /* Stack export buttons on mobile */
+        align-items: center; /* Center stacked buttons */
+        gap: 0.75rem; /* Space between stacked buttons */
+    }
+
+    .btn-export {
+        width: 100%; /* Make export buttons full width on mobile */
+        justify-content: center;
+        font-size: 0.95rem;
+        padding: 0.6rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-buttons {
+        flex-direction: column; /* Stack filter buttons on very small screens */
+        align-items: stretch; /* Stretch to fill width */
+    }
+    .btn-filter {
+        width: 100%; /* Full width for stacked filter buttons */
+    }
+}
+
+/* Ensure the navigation in index.html is updated for reports.html */
+/* You might want to update index.html's navbar to point to reports.html */
+/* Example:
+   <li class="nav-item"><a class="nav-link" href="reports.html">REPORTS</a></li>
+*/
+
+/* Add any necessary utility classes if missing */
+.card { /* Ensure this is defined and styles cards consistently */
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+
+
+
+
+
+
+
+/*  ----- CONTACTS -----  */
+
+
+/* Contact Section */
+.contact-section {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.contact-title {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.contact-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    flex-wrap: wrap;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.contact-info {
+    flex: 1;
+    min-width: 250px;
+    text-align: left;
+    font-size: 1rem;
+    color: #555;
+}
+
+.contact-form {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact-form .input-field,
+.contact-form .textarea-field {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    font-family: inherit;
+    background: #fff;
+    width: 100%;
+}
+
+.contact-form .btn-crack {
+    align-self: flex-start;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .contact-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .contact-info,
+    .contact-form {
+        width: 100%;
+        max-width: 500px;
+    }
+}
+
+
+
+
+
+
+
+/*  ----- UTILITY CLASSES -----  */
+
+
+.tracking-extra-wide {
+    letter-spacing: 0.7em;
+}
+
+.tracking-mid-wide {
+    letter-spacing: 0.6em;
+}
+
+.tracking-semi-wide {
+    letter-spacing: 0.4em;
+}
+
+.tracking-semi-semi-wide {
+    letter-spacing: 0.3em;
+}
+.tracking-not-wide {
+    letter-spacing: 0.2em;
+}
+
+
+
+/*  MARGIN  */
+.m-10{
+    margin: 1.25rem; /* 20px */
+}
+.mr-10{
+    margin-right: 1.25rem; /* 20px */
+}
+.ml-10{
+    margin-left: 1.25rem; /* 20px */
+}
+.mb-10{
+    margin-bottom: 1.25rem; /* 20px */
+}
+.mt-10{
+    margin-top: 1.25rem; /* 20px */
+}
+
+.m-20{
+    margin-right: 5rem; /* 80px */
+    margin-left: 5rem; /* 80px */
+}
+.mr-ml-20{
+    margin-right: 5rem; /* 80px */
+    margin-left: 5rem; /* 80px */
+}
+
+
+/*  PADDING  */
+
+
+/*  FONTS  */
+.pixel{
+    font-family: 'Pixelify Sans', sans-serif;
+}
+.poppins{
+    font-family: 'Poppins', sans-serif;
+}
+.regular{
+    font-weight: 400;
+}
+.medium{
+    font-weight: 500;
+}
+.bold{
+    font-weight: 700;
+}
+.black{
+    font-weight: bold;
+}
+
+/*  BG-COLOR  */
+
+.bg-beige{
+    background-color: #F6F7EE;
+}
+.bg-custom-black1{
+    background-color: #18191D;
+}
+.custom-black1{
+    color: #18191D;
+}
+.custom-black2{
+    color: #34363C;
+}
+.custom-black3{
+    color: #525459;
+}
+.white{
+    color: #ffff;
+}

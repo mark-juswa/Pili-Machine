@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Pixelify+Sans:wght@400..700;1,400..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/x-icon" href="images/Logo.png">
+    
+    <title>Pili</title>
+</head>
+<body class="bg-beige poppins" >
+    <nav class="navbar">
+        <ul class="nav-list">
+            <li class="nav-item active"> <a class="nav-link" href="#home">HOME</a></li>
+          <!-- <li class="nav-item"> <a class="nav-link" href="#about">ABOUT</a></li> --> 
+            <li class="nav-item"><a class="nav-link" href="#dashboard">DASHBOARD</a></li>
+            <li class="nav-item"><a class="nav-link" href="#reports">REPORTS</a></li>
+            <li class="nav-item"><a class="nav-link" href="#contact">CONTACT</a></li>
+        </ul>
+    
+        <div class="hamburger-nav">
+            <div class="menu-logo" onclick="toggleMenu()">
+                <img src="images/menu.png" alt="Menu">
+            </div>
+    
+            <div id="dropdown-menu" class="drop-down-menu hidden">
+                <ul class="smallnav-container">
+                    <li><a href="#home" class="smallnav-links">HOME</a></li>
+                    <!-- <li><a href="#about" class="smallnav-links">ABOUT</a></li> -->
+                    <li><a href="#dashboard" class="smallnav-links">DASHBOARD</a></li>
+                    <li><a href="#reports" class="smallnav-links">REPORTS</a></li>
+                    <li><a href="#contact" class="smallnav-links">CONTACT</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="headline">Pili Cracker<br>Innovation.</h1>
+            <div class="subheadline">
+                <h2>Smart<br>Technology</h2>
+                <p>Enhance your operations with<br>the pili cracker!</p>
+            </div>
+            <a href="#dashboard" class="cta-button">
+                See Dashboard <span>&#8599;</span>
+            </a>
+        </div>
+        <div class="hero-image">
+            <img src="images/Pili Cracker 5png.png" alt="Pili Cracker" />
+        </div>
+    </section>
+
+
+    <div id="dashboard" class="dashboard-container">
+        <h1 class="dashboard-title">Dashboard</h1>
+
+        <div class="dashboard-grid">
+            <div class="card chart-card">
+                <canvas id="productionChart"></canvas>
+            </div>
+
+            <div class="card production-history-card">
+                <h3 class="card-title">Production History</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Input(Kg)</th>
+                            <th>Price/Kg</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboardProductionHistoryTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card input-purchased-card">
+                <h3 class="card-title">Input Purchased</h3>
+                <p class="main-metric" id="totalInputKg">0kg</p>
+                <p class="sub-metric" id="inputPurchasedDate">No Date</p>
+                <p class="source" id="inputPurchasedSource">N/A</p>
+            </div>
+
+            <div class="card pili-cracked-card">
+                <h3 class="card-title">Pili Cracked</h3>
+                <p class="sub-metric" id="latestPiliCrackedDate">No Date</p>
+                <p class="main-metric" id="latestPiliCrackedKg">0kg</p>
+            </div>
+
+            <div class="card expected-sales-card">
+                <h3 class="card-title">Expected Sales</h3>
+                <p class="main-metric currency" id="expectedSales">₱0</p>
+                <p class="sub-metric" id="expectedSalesPricePerKg">Price Per Kg: ₱0</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="priceModal" class="modal-overlay hidden">
+        <div class="modal-content card">
+            <h2>Set Current Pili Selling Price</h2>
+            <p>Enter the current market selling price of pili per kilogram:</p>
+            <div class="price-input-wrapper">
+                <label for="currentSellingPrice" class="price-label">Price (₱)</label>
+                <input type="number" id="currentSellingPrice" class="input-field" placeholder="Enter selling price in PHP" required>
+            </div>
+            <div id="sellingPriceMessage" class="message-box success-message hidden"></div> <div class="modal-buttons">
+                <button id="saveSellingPriceBtn" class="btn btn-crack">Save</button>
+                <button id="cancelSellingPriceBtn" class="btn btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="production-container">
+        <h1 class="production-title">Production</h1>
+
+        <div class="production-header">
+            <div class="status-item">
+                <img src="images/internet.png" alt="Wifi Icon" class="status-icon"> <span class="status-text">Device Connected</span>
+            </div>
+            <div class="status-item">
+                <img src="images/electricity (1).png" alt="Lightning Icon" class="status-icon"> <span class="status-text">200kw</span>
+            </div>
+        </div>
+
+        <div class="production-card card">
+            <div class="input-section">
+                <h3 class="card-title">Weight to crack:</h3>
+                <input type="text" placeholder="Weight in kg (Auto detected)" class="input-field" id="weightToCrack" readonly>
+                <div class="status-line">
+                    <span class="status-label">Status:</span>
+                    <span class="status-value bold">Machine stopped</span>
+                    <span class="status-label ml-10">Power Usage:</span>
+                    <span class="status-value bold">0 kw/h</span>
+                </div>
+            </div>
+
+            <div class="additional-info-section">
+                <h3 class="card-title">Additional info:</h3>
+
+                <div class="price-input-wrapper">
+                    <label for="price" class="price-label">Price (₱)</label>
+                    <input type="number" id="price" class="input-field" placeholder="Enter price in PHP" required>
+                </div>
+
+                <p class="description-label">Description (Optional)</p>
+                <textarea placeholder="Description" class="textarea-field" id="description"></textarea>
+            </div>
+
+
+            <div class="action-buttons">
+                <button id="crackPiliBtn" class="btn btn-crack">Crack <span class="arrow">&#8599;</span></button> 
+                <button id="cancelProductionBtn" class="btn btn-cancel">Cancel</button>
+            </div>
+
+            <div class="activity-log-section">
+                <h3 class="card-title">Activity log</h3>
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Input(Kg)</th>
+                            <th>Price (₱)</th>
+                            <th>Description</th>
+                            <th></th> </tr>
+                    </thead>
+                    <tbody id="activityLogTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+<div id="priceModal" class="modal-overlay hidden">
+        <div class="modal-content card">
+            <h2>Set Current Pili Selling Price</h2>
+            <p>Enter the current market selling price of pili per kilogram:</p>
+            <div class="price-input-wrapper">
+                <label for="currentSellingPrice" class="price-label">Price (₱)</label>
+                <input type="number" id="currentSellingPrice" class="input-field" placeholder="Enter selling price in PHP" required>
+            </div>
+            <div id="sellingPriceMessage" class="message-box success-message hidden"></div>
+            <div class="modal-buttons">
+                <button id="saveSellingPriceBtn" class="btn btn-crack">Save</button>
+                <button id="cancelSellingPriceBtn" class="btn btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="crackSuccessModal" class="modal-overlay hidden">
+        <div class="modal-content card">
+            <img src="images/check.png" alt="Success" class="modal-icon"> <h2 class="success-title">Pili Cracked Successfully!</h2>
+            <p id="crackSuccessMessage" class="success-message-text">10kg of pili processed.</p>
+            <button id="closeCrackSuccessBtn" class="btn btn-crack">OK</button>
+        </div>
+    </div>
+
+
+
+
+        <div id="reports" class="reports-container">
+        <h1 class="reports-title">Reports</h1>
+
+        <div class="filter-buttons">
+            <button class="btn-filter active" id="filterToday">Today</button>
+            <button class="btn-filter" id="filterThisWeek">This Week</button>
+            <button class="btn-filter" id="filterMonthly">This Month</button>
+            <button class="btn-filter" id="filterYearly">Yearly</button>
+        </div>
+
+        <div class="report-card card">
+            <div class="table-responsive">
+                <table class="reports-table" id="reportsTable">
+                    <thead>
+                        <tr>
+                            <th>Date Processed</th>
+                            <th>Input Weight (kg)</th>
+                            <th>Cost of Input (₱)</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsTableBody">
+                        </tbody>
+                </table>
+            </div>
+            <div class="export-button-container">
+                <button class="btn btn-export" id="exportPdf">
+                    Export as PDF
+                    <img src="images/file.png" alt="PDF Icon" class="export-icon">
+                </button>
+                <button class="btn btn-export btn-export-excel" id="exportExcel">
+                    Export as Excel
+                    <img src="images/xls.png" alt="Excel Icon" class="export-icon">
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+ 
+
+<section id="contact" class="contact-section">
+  <h1 class="contact-title">Get in Touch</h1>
+  <div class="contact-wrapper">
+    <div class="contact-info">
+      <h2>Contact Information</h2>
+      <p><strong>Location:</strong> Camarines Norte State College, Bicol, Philippines</p>
+      <p><strong>Email:</strong> support@pilismart.com</p>
+      <p><strong>Phone:</strong> +63 912 345 6789</p>
+    </div>
+
+    <form class="contact-form" onsubmit="event.preventDefault(); showContactThankYou();">
+      <input type="text" class="input-field" placeholder="Your Name" required>
+      <input type="email" class="input-field" placeholder="Your Email" required>
+      <textarea class="textarea-field" placeholder="Your Message" rows="5" required></textarea>
+      <button type="submit" class="btn btn-crack">Send Message</button>
+    </form>
+  </div>
+</section>
+
+   <!-- Contact Thank You Modal -->
+    <div id="contactThankYouModal" class="modal-overlay hidden">
+        <div class="modal-content card">
+            <img src="images/check.png" alt="Thank You" class="modal-icon">
+            <h2 class="success-title">Thank You!</h2>
+            <p class="success-message-text">Your message has been sent successfully. We will get back to you shortly.</p>
+            <button id="closeContactThankYouBtn" class="btn btn-crack">OK</button>
+        </div>
+    </div>
+
+
+    <script src="js/supabase-client.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="reports.js"></script>
+    <script src="chart-data.js"></script>
+    <script src="production.js"></script>
+    <script>
+        function toggleMenu() {
+            const dropdownMenu = document.getElementById("dropdown-menu");
+            if (dropdownMenu.classList.contains("hidden")) {
+                dropdownMenu.classList.remove("hidden");
+                dropdownMenu.style.maxHeight = "600px"; // Adjust height as needed
+            } else {
+                dropdownMenu.classList.add("hidden");
+                dropdownMenu.style.maxHeight = "0px";
+            }
+        }
+            function showContactThankYou() {
+            const contactThankYouModal = document.getElementById('contactThankYouModal');
+            const contactForm = document.querySelector('.contact-form');
+
+            contactThankYouModal.classList.remove('hidden');
+            contactForm.reset(); // Clear the form fields
+
+            document.getElementById('closeContactThankYouBtn').onclick = function() {
+                contactThankYouModal.classList.add('hidden');
+            };
+
+            // Automatically hide after 3 seconds
+            setTimeout(() => {
+                contactThankYouModal.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+
+</body>
+</html>
