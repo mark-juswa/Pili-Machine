@@ -412,6 +412,55 @@ justify-content: flex-end;
     border-bottom: none;
 }
 
+/* Table responsive wrapper */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.batches-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    min-width: 800px; /* Ensures table doesn't get too squished */
+}
+
+.batches-table th,
+.batches-table td {
+    padding: 0.8rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+    color: #525459;
+    white-space: nowrap;
+}
+
+.batches-table th {
+    font-weight: 600;
+    color: #18191D;
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+}
+
+.batches-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.batches-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
 /* Metric Cards */
 .main-metric {
     font-size: 2.5rem;
@@ -448,24 +497,64 @@ justify-content: flex-end;
 
 
 /* Responsive Adjustments for Dashboard Grid */
+
+/* Tablet and below - Stack cards in 2 columns */
 @media (max-width: 992px) {
     .dashboard-grid {
-        grid-template-columns: 1fr; /* Stack all cards on smaller screens */
+        grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
+        gap: 1rem;
     }
 
     .chart-card {
-        grid-column: auto; /* Reset column span */
+        grid-column: 1 / -1; /* Chart spans full width */
+        min-height: 250px;
+    }
+    
+    .batches-table-card,
+    .sales-table-card {
+        grid-column: 1 / -1; /* Tables span full width */
     }
 }
 
-@media (max-width: 576px) {
+/* Small tablets and large phones */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1.5rem 1rem;
+    }
+    
     .dashboard-title {
         font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .dashboard-grid {
+        gap: 1rem;
+    }
+    
+    .card {
+        padding: 1.25rem;
+    }
+    
+    .main-metric {
+        font-size: 2.2rem;
+    }
+}
+
+/* Mobile phones - Single column */
+@media (max-width: 576px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* Single column for mobile */
+        gap: 0.75rem;
+    }
+    
+    .dashboard-title {
+        font-size: 1.75rem;
         text-align: center;
+        margin-bottom: 1.25rem;
     }
 
     .dashboard-container {
-        padding: 1rem;
+        padding: 1rem 0.75rem;
     }
 
     .card {
@@ -473,11 +562,97 @@ justify-content: flex-end;
     }
 
     .card-title {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
     }
 
     .main-metric {
-        font-size: 2rem;
+        font-size: 1.8rem;
+    }
+    
+    .sub-metric {
+        font-size: 0.85rem;
+    }
+    
+    .chart-card {
+        min-height: 200px;
+        padding: 0.75rem;
+    }
+    
+    /* Make stat cards more compact */
+    .stat-card {
+        min-height: 120px;
+    }
+}
+
+/* Extra small phones */
+@media (max-width: 380px) {
+    .dashboard-title {
+        font-size: 1.5rem;
+    }
+    
+    .card {
+        padding: 0.875rem;
+    }
+    
+    .card-title {
+        font-size: 0.95rem;
+    }
+    
+    .main-metric {
+        font-size: 1.6rem;
+    }
+    
+    .sub-metric {
+        font-size: 0.8rem;
+    }
+}
+
+/* Table responsiveness for smaller screens */
+@media (max-width: 768px) {
+    .batches-table {
+        min-width: 600px; /* Reduce minimum width on tablets */
+    }
+    
+    .batches-table th,
+    .batches-table td {
+        padding: 0.6rem 0.4rem;
+        font-size: 0.85rem;
+    }
+    
+    .batches-table-card,
+    .sales-table-card {
+        padding: 1rem 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .batches-table {
+        min-width: 500px; /* Further reduce on mobile */
+        font-size: 0.8rem;
+    }
+    
+    .batches-table th,
+    .batches-table td {
+        padding: 0.5rem 0.3rem;
+        font-size: 0.75rem;
+    }
+    
+    .table-responsive {
+        border-radius: 0.5rem;
+        box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+    }
+    
+    /* Add visual indicator for horizontal scroll */
+    .batches-table-card::after,
+    .sales-table-card::after {
+        content: "← Swipe to see more →";
+        display: block;
+        text-align: center;
+        font-size: 0.75rem;
+        color: #999;
+        margin-top: 0.5rem;
+        font-style: italic;
     }
 }
 
