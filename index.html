@@ -20,6 +20,7 @@
             <li class="nav-item"><a class="nav-link" href="#dashboard">DASHBOARD</a></li>
             <li class="nav-item"><a class="nav-link" href="#reports">REPORTS</a></li>
             <li class="nav-item"><a class="nav-link" href="#contact">CONTACT</a></li>
+            <li class="nav-item"><a class="nav-link" href="account.html">ACCOUNT</a></li>
         </ul>
     
         <div class="hamburger-nav">
@@ -34,6 +35,7 @@
                     <li><a href="#dashboard" class="smallnav-links">DASHBOARD</a></li>
                     <li><a href="#reports" class="smallnav-links">REPORTS</a></li>
                     <li><a href="#contact" class="smallnav-links">CONTACT</a></li>
+                    <li><a href="account.html" class="smallnav-links">ACCOUNT</a></li>
                 </ul>
             </div>
         </div>
@@ -65,38 +67,104 @@
                 <canvas id="productionChart"></canvas>
             </div>
 
-            <div class="card production-history-card">
-                <h3 class="card-title">Production History</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Input(Kg)</th>
-                            <th>Price/Kg</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dashboardProductionHistoryTableBody">
-                    </tbody>
-                </table>
+            <div class="card stat-card">
+                <h3 class="card-title">Total Batches</h3>
+                <p class="main-metric" id="totalBatches">0</p>
+                <p class="sub-metric">All time production batches</p>
             </div>
 
-            <div class="card input-purchased-card">
-                <h3 class="card-title">Input Purchased</h3>
-                <p class="main-metric" id="totalInputKg">0kg</p>
-                <p class="sub-metric" id="inputPurchasedDate">No Date</p>
-                <p class="source" id="inputPurchasedSource">N/A</p>
+            <div class="card stat-card">
+                <h3 class="card-title">Total Shell Weight</h3>
+                <p class="main-metric" id="totalShellWeight">0kg</p>
+                <p class="sub-metric" id="totalShellWeightDate">Last updated: N/A</p>
             </div>
 
-            <div class="card pili-cracked-card">
-                <h3 class="card-title">Pili Cracked</h3>
-                <p class="sub-metric" id="latestPiliCrackedDate">No Date</p>
-                <p class="main-metric" id="latestPiliCrackedKg">0kg</p>
+            <div class="card stat-card">
+                <h3 class="card-title">Total Nut Weight</h3>
+                <p class="main-metric" id="totalNutWeight">0kg</p>
+                <p class="sub-metric" id="totalNutWeightDate">Last updated: N/A</p>
             </div>
 
-            <div class="card expected-sales-card">
-                <h3 class="card-title">Expected Sales</h3>
-                <p class="main-metric currency" id="expectedSales">₱0</p>
-                <p class="sub-metric" id="expectedSalesPricePerKg">Price Per Kg: ₱0</p>
+            <div class="card stat-card">
+                <h3 class="card-title">Total Production</h3>
+                <p class="main-metric" id="totalProduction">0kg</p>
+                <p class="sub-metric">Combined shell and nut weight</p>
+            </div>
+
+            <div class="card stat-card">
+                <h3 class="card-title">Average per Batch</h3>
+                <p class="main-metric" id="averagePerBatch">0kg</p>
+                <p class="sub-metric">Average total weight per batch</p>
+            </div>
+
+            <div class="card stat-card">
+                <h3 class="card-title">Average Weight Lost</h3>
+                <p class="main-metric" id="averageWeightLost">0kg</p>
+                <p class="sub-metric">Average weight lost per batch</p>
+            </div>
+
+            <div class="card stat-card">
+                <h3 class="card-title">Latest Batch</h3>
+                <p class="sub-metric" id="latestBatchDate">No batches yet</p>
+                <p class="main-metric" id="latestBatchWeight">0kg</p>
+            </div>
+
+            <div class="card stat-card" id="totalSalesValueCard">
+                <h3 class="card-title">Total Sales Value</h3>
+                <p class="main-metric currency" id="totalSalesValue">₱0</p>
+                <p class="sub-metric" id="salesPricePerKg">Price per kg: ₱0</p>
+            </div>
+
+            <div class="card batches-table-card" style="grid-column: 1 / -1;">
+                <h3 class="card-title">Batch Readings</h3>
+                <div class="table-responsive">
+                    <table class="batches-table">
+                        <thead>
+                            <tr>
+                                <th>Batch ID</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Input Weight (kg)</th>
+                                <th>Shell Weight (kg)</th>
+                                <th>Nut Weight (kg)</th>
+                                <th>Total Output (kg)</th>
+                                <th>Weight Lost (kg)</th>
+                                <th>Sales Value (₱)</th>
+                                <th>Note</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batchesTableBody">
+                            <tr>
+                                <td colspan="9" class="text-center py-4">Loading batches...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card sales-table-card" style="grid-column: 1 / -1;">
+                <h3 class="card-title">Sales History</h3>
+                <div class="table-responsive">
+                    <table class="batches-table">
+                        <thead>
+                            <tr>
+                                <th>Batch ID</th>
+                                <th>Date Sold</th>
+                                <th>Shell Weight (kg)</th>
+                                <th>Nut Weight (kg)</th>
+                                <th>Total Weight (kg)</th>
+                                <th>Sales Value (₱)</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center py-4">No sales yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -145,8 +213,8 @@
                 <h3 class="card-title">Additional info:</h3>
 
                 <div class="price-input-wrapper">
-                    <label for="price" class="price-label">Price (₱)</label>
-                    <input type="number" id="price" class="input-field" placeholder="Enter price in PHP" required>
+                    <label for="shellWeight" class="price-label">Shell Weight (kg, optional)</label>
+                    <input type="number" id="shellWeight" class="input-field" placeholder="Enter shell weight in kg">
                 </div>
 
                 <p class="description-label">Description (Optional)</p>
@@ -164,11 +232,14 @@
                 <table class="activity-table">
                     <thead>
                         <tr>
+                            <th>Batch ID</th>
                             <th>Date</th>
-                            <th>Input(Kg)</th>
-                            <th>Price (₱)</th>
+                            <th>Shell Weight (kg)</th>
+                            <th>Nut Weight (kg)</th>
+                            <th>Total Weight (kg)</th>
                             <th>Description</th>
-                            <th></th> </tr>
+                            <th></th>
+                        </tr>
                     </thead>
                     <tbody id="activityLogTableBody">
                     </tbody>
@@ -206,27 +277,78 @@
         <div id="reports" class="reports-container">
         <h1 class="reports-title">Reports</h1>
 
-        <div class="filter-buttons">
-            <button class="btn-filter active" id="filterToday">Today</button>
-            <button class="btn-filter" id="filterThisWeek">This Week</button>
-            <button class="btn-filter" id="filterMonthly">This Month</button>
-            <button class="btn-filter" id="filterYearly">Yearly</button>
+        <div class="report-selection" style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="reportType" style="font-weight: 600; color: #34363C;">Report Type:</label>
+                <select id="reportType" class="input-field" style="min-width: 150px; padding: 0.75rem;">
+                    <option value="batches">Batches</option>
+                    <option value="sales">Sales</option>
+                </select>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="startDate" style="font-weight: 600; color: #34363C;">From:</label>
+                <input type="date" id="startDate" class="input-field" style="padding: 0.75rem;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="endDate" style="font-weight: 600; color: #34363C;">To:</label>
+                <input type="date" id="endDate" class="input-field" style="padding: 0.75rem;">
+            </div>
+            <button id="generateReportBtn" class="btn btn-crack" style="padding: 0.75rem 1.5rem;">Generate Report</button>
         </div>
 
         <div class="report-card card">
             <div class="table-responsive">
                 <table class="reports-table" id="reportsTable">
-                    <thead>
+                    <thead id="reportsTableHead">
                         <tr>
-                            <th>Date Processed</th>
+                            <th>Date</th>
+                            <th>Batch ID</th>
                             <th>Input Weight (kg)</th>
-                            <th>Cost of Input (₱)</th>
+                            <th>Shell Weight (kg)</th>
+                            <th>Nut Weight (kg)</th>
+                            <th>Total Weight (kg)</th>
+                            <th>Weight Lost (kg)</th>
+                            <th>Sales Value (₱)</th>
+                            <th>Status</th>
                             <th>Description</th>
                         </tr>
                     </thead>
                     <tbody id="reportsTableBody">
-                        </tbody>
+                        <tr>
+                            <td colspan="10" class="text-center py-4">Select a date range and click "Generate Report" to view data.</td>
+                        </tr>
+                    </tbody>
                 </table>
+            </div>
+            
+            <div id="dateRangeSummary" style="margin-top: 2rem; padding: 1.5rem; background-color: #f9fafb; border-radius: 0.5rem; display: none;">
+                <h3 style="margin-bottom: 1rem; color: #34363C;">Date Range Summary</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div>
+                        <p style="font-size: 0.9rem; color: #525459; margin-bottom: 0.25rem;">Total Batches</p>
+                        <p style="font-size: 1.2rem; font-weight: 600; color: #18191D;" id="summaryTotalBatches">-</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.9rem; color: #525459; margin-bottom: 0.25rem;">Total Shell Weight</p>
+                        <p style="font-size: 1.2rem; font-weight: 600; color: #18191D;" id="summaryTotalShellWeight">-</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.9rem; color: #525459; margin-bottom: 0.25rem;">Total Nut Weight</p>
+                        <p style="font-size: 1.2rem; font-weight: 600; color: #18191D;" id="summaryTotalNutWeight">-</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.9rem; color: #525459; margin-bottom: 0.25rem;">Total Weight</p>
+                        <p style="font-size: 1.2rem; font-weight: 600; color: #18191D;" id="summaryTotalWeight">-</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.9rem; color: #525459; margin-bottom: 0.25rem;">Total Weight Lost</p>
+                        <p style="font-size: 1.2rem; font-weight: 600; color: #18191D;" id="summaryTotalWeightLost">-</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.9rem; color: #525459; margin-bottom: 0.25rem;">Total Sales Value</p>
+                        <p style="font-size: 1.2rem; font-weight: 600; color: #18191D;" id="summaryTotalSalesValue">-</p>
+                    </div>
+                </div>
             </div>
             <div class="export-button-container">
                 <button class="btn btn-export" id="exportPdf">

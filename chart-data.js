@@ -1,38 +1,89 @@
 // Make updateDashboardMetrics global so production.js can call it
 window.updateDashboardMetrics = async function() { // Made async
     const ctx = document.getElementById('productionChart');
-    const productionHistoryTableBody = document.querySelector('#dashboardProductionHistoryTableBody');
-    const totalInputKgElement = document.getElementById('totalInputKg');
-    const inputPurchasedDateElement = document.getElementById('inputPurchasedDate');
-    const inputPurchasedSourceElement = document.getElementById('inputPurchasedSource');
-    const latestPiliCrackedKgElement = document.getElementById('latestPiliCrackedKg');
-    const latestPiliCrackedDateElement = document.getElementById('latestPiliCrackedDate');
-    const expectedSalesMainMetric = document.getElementById('expectedSales');
-    const expectedSalesPricePerKg = document.getElementById('expectedSalesPricePerKg');
 
-    // Function to load production log data from Supabase
-    async function loadProductionDataFromSupabase() {
+    // Function to load batches with shell and nut readings from Supabase
+    async function loadBatchesWithReadings() {
         if (!window.supabase) {
             console.error('Supabase client not initialized.');
             return [];
         }
-        const { data, error } = await window.supabase
-            .from('production_logs')
-            .select('date, input_kg, price_per_kg_input') // Select only necessary columns
-            .order('date', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching production logs for dashboard:', error);
+        // Fetch batches with their shell and nut readings (only non-sold batches)
+        const { data: batches, error: batchesError } = await window.supabase
+            .from('batches')
+            .select('id, created_at, status, note')
+            .neq('status', 'sold')
+            .order('created_at', { ascending: false });
+
+        if (batchesError) {
+            console.error('Error fetching batches:', batchesError);
             return [];
         }
-        return data.map(entry => ({
-            date: entry.date,
-            inputKg: parseFloat(entry.input_kg),
-            price: parseFloat(entry.price_per_kg_input) // Cost per kg input
-        }));
+
+        // For each batch, fetch shell and nut readings
+        const batchesWithReadings = await Promise.all(
+            batches.map(async (batch) => {
+                // Fetch shell readings for this batch
+                const { data: shellReadings, error: shellError } = await window.supabase
+                    .from('shell_readings')
+                    .select('weight')
+                    .eq('batch_id', batch.id);
+
+                if (shellError) {
+                    console.error(`Error fetching shell readings for batch ${batch.id}:`, shellError);
+                }
+
+                // Fetch nut readings for this batch
+                const { data: nutReadings, error: nutError } = await window.supabase
+                    .from('nut_readings')
+                    .select('weight')
+                    .eq('batch_id', batch.id);
+
+                if (nutError) {
+                    console.error(`Error fetching nut readings for batch ${batch.id}:`, nutError);
+                }
+
+                // Calculate totals
+                const shellWeight = shellReadings
+                    ? shellReadings.reduce((sum, reading) => sum + parseFloat(reading.weight || 0), 0)
+                    : 0;
+                const nutWeight = nutReadings
+                    ? nutReadings.reduce((sum, reading) => sum + parseFloat(reading.weight || 0), 0)
+                    : 0;
+                const totalWeight = shellWeight + nutWeight;
+                
+                // Input weight is the nut_weight (weight to crack - this is what was put in)
+                // After cracking, we measure shell_weight (the shells removed)
+                // The actual nut weight remaining = Input Weight - Shell Weight - Other Losses
+                // Weight Lost = Input Weight - (Shell Weight + Remaining Nut Weight)
+                // Since we don't have remaining nut weight separately, we'll calculate:
+                // Weight Lost = Input Weight - Shell Weight (the difference represents weight lost)
+                // This assumes the remaining weight is the nut weight, and any difference is loss
+                const inputWeight = nutWeight; // Input weight is what was put in to crack
+                // Weight lost = Input - Shell (assuming remaining is nut weight, any difference is loss)
+                // Or more simply: Weight Lost = Shell Weight (the material removed)
+                // Let's use: Weight Lost = Input Weight - Shell Weight
+                const weightLost = inputWeight - shellWeight; // Weight lost during cracking process
+
+                return {
+                    id: batch.id,
+                    created_at: batch.created_at,
+                    status: batch.status,
+                    note: batch.note || '',
+                    inputWeight: inputWeight,
+                    shellWeight: shellWeight,
+                    nutWeight: nutWeight,
+                    totalWeight: totalWeight,
+                    weightLost: weightLost
+                };
+            })
+        );
+
+        return batchesWithReadings;
     }
 
-    // Function to load selling price from Supabase
+    // Function to load selling price from Supabase (for chart data)
     async function loadSellingPriceFromSupabase() {
         if (!window.supabase) {
             console.error('Supabase client not initialized.');
@@ -42,17 +93,92 @@ window.updateDashboardMetrics = async function() { // Made async
             .from('app_settings')
             .select('setting_value')
             .eq('setting_name', 'pili_selling_price')
-            .single(); // Expecting only one row for this setting
+            .single();
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 means "no rows found"
+        if (error && error.code !== 'PGRST116') {
             console.error('Error fetching selling price from Supabase:', error);
-            return 350; // Default if error
+            return 350;
         }
-        return data ? parseFloat(data.setting_value) : 350; // Default to 350 if not found
+        return data ? parseFloat(data.setting_value) : 350;
     }
 
-    let activityLogData = await loadProductionDataFromSupabase(); // Await data
-    let currentSellingPrice = await loadSellingPriceFromSupabase(); // Await data
+    // Function to load sold batches with shell and nut readings
+    async function loadSoldBatches() {
+        if (!window.supabase) {
+            console.error('Supabase client not initialized.');
+            return [];
+        }
+
+        // Fetch sold batches with their shell and nut readings
+        const { data: batches, error: batchesError } = await window.supabase
+            .from('batches')
+            .select('id, created_at, status, note, finished_at')
+            .eq('status', 'sold')
+            .order('finished_at', { ascending: false });
+
+        if (batchesError) {
+            console.error('Error fetching sold batches:', batchesError);
+            return [];
+        }
+
+        // For each batch, fetch shell and nut readings
+        const batchesWithReadings = await Promise.all(
+            batches.map(async (batch) => {
+                // Fetch shell readings for this batch
+                const { data: shellReadings, error: shellError } = await window.supabase
+                    .from('shell_readings')
+                    .select('weight')
+                    .eq('batch_id', batch.id);
+
+                if (shellError) {
+                    console.error(`Error fetching shell readings for batch ${batch.id}:`, shellError);
+                }
+
+                // Fetch nut readings for this batch
+                const { data: nutReadings, error: nutError } = await window.supabase
+                    .from('nut_readings')
+                    .select('weight')
+                    .eq('batch_id', batch.id);
+
+                if (nutError) {
+                    console.error(`Error fetching nut readings for batch ${batch.id}:`, nutError);
+                }
+
+                // Calculate totals
+                const shellWeight = shellReadings
+                    ? shellReadings.reduce((sum, reading) => sum + parseFloat(reading.weight || 0), 0)
+                    : 0;
+                const nutWeight = nutReadings
+                    ? nutReadings.reduce((sum, reading) => sum + parseFloat(reading.weight || 0), 0)
+                    : 0;
+                const totalWeight = shellWeight + nutWeight;
+                
+                // Input weight is the nut_weight (weight to crack)
+                const inputWeight = nutWeight;
+                const outputWeight = shellWeight + nutWeight;
+                const weightLost = inputWeight - outputWeight;
+
+                return {
+                    id: batch.id,
+                    created_at: batch.created_at,
+                    finished_at: batch.finished_at || batch.created_at,
+                    status: batch.status,
+                    note: batch.note || '',
+                    inputWeight: inputWeight,
+                    shellWeight: shellWeight,
+                    nutWeight: nutWeight,
+                    totalWeight: totalWeight,
+                    weightLost: weightLost
+                };
+            })
+        );
+
+        return batchesWithReadings;
+    }
+
+    const batchesData = await loadBatchesWithReadings();
+    const soldBatchesData = await loadSoldBatches();
+    let currentSellingPrice = await loadSellingPriceFromSupabase();
 
     // --- Chart Data Generation ---
     const today = new Date();
@@ -66,11 +192,11 @@ window.updateDashboardMetrics = async function() { // Made async
         chartLabels.push(monthDate.toLocaleString('en-US', { month: 'short' }) + '\n' + currentYear);
     }
 
-    activityLogData.forEach(entry => {
-        const entryDate = new Date(entry.date);
+    batchesData.forEach(batch => {
+        const entryDate = new Date(batch.created_at);
         if (entryDate.getFullYear() === currentYear) {
             const monthIndex = entryDate.getMonth();
-            monthlyData[monthIndex] += entry.inputKg;
+            monthlyData[monthIndex] += batch.totalWeight;
         }
     });
 
@@ -79,6 +205,7 @@ window.updateDashboardMetrics = async function() { // Made async
             window.myProductionChart.destroy();
         }
 
+        const maxValue = Math.max(...monthlyData, 0);
         window.myProductionChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -111,7 +238,7 @@ window.updateDashboardMetrics = async function() { // Made async
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: Math.max(90, Math.ceil(Math.max(...monthlyData) / 10) * 10 + 20),
+                        max: Math.max(90, Math.ceil(maxValue / 10) * 10 + 20),
                         ticks: {
                             stepSize: 10,
                             color: '#525459'
@@ -134,66 +261,240 @@ window.updateDashboardMetrics = async function() { // Made async
         });
     }
 
-    let totalInputKg = 0;
-    let totalExpectedSales = 0;
-    let latestEntry = null;
+    // Calculate summary statistics
+    let totalBatches = batchesData.length;
+    let totalShellWeight = 0;
+    let totalNutWeight = 0;
+    let totalProduction = 0;
+    let totalInputWeight = 0;
+    let totalWeightLost = 0;
+    let averagePerBatch = 0;
+    let averageWeightLost = 0;
+    let totalSalesValue = 0;
+    let latestBatch = null;
 
-    // Clear existing table rows in Production History
-    if (productionHistoryTableBody) {
-        productionHistoryTableBody.innerHTML = '';
-    }
+    batchesData.forEach(batch => {
+        totalShellWeight += batch.shellWeight;
+        totalNutWeight += batch.nutWeight;
+        totalProduction += batch.totalWeight;
+        totalInputWeight += batch.inputWeight;
+        totalWeightLost += batch.weightLost;
 
-    activityLogData.forEach(entry => {
-        totalInputKg += entry.inputKg;
-        totalExpectedSales += (entry.inputKg * currentSellingPrice); // Using the loaded selling price
+        // Calculate sales value for this batch (based on nut weight)
+        batch.salesValue = batch.nutWeight * currentSellingPrice;
+        totalSalesValue += batch.salesValue;
 
-        // Populate Production History table
-        if (productionHistoryTableBody) {
-            const row = productionHistoryTableBody.insertRow();
-            row.innerHTML = `
-                <td>${entry.date}</td>
-                <td>${entry.inputKg}</td>
-                <td>₱${entry.price.toLocaleString('en-PH')}</td>
-            `;
-        }
-
-        // Determine latest entry for 'Input Purchased' and 'Pili Cracked'
-        if (!latestEntry || new Date(entry.date) > new Date(latestEntry.date)) {
-            latestEntry = entry;
+        // Find latest batch
+        if (!latestBatch || new Date(batch.created_at) > new Date(latestBatch.created_at)) {
+            latestBatch = batch;
         }
     });
 
-    // Update 'Input Purchased' card
-    if (totalInputKgElement) {
-        totalInputKgElement.textContent = `${totalInputKg}kg`;
-    }
-    if (inputPurchasedDateElement && latestEntry) {
-        inputPurchasedDateElement.textContent = new Date(latestEntry.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    } else if (inputPurchasedDateElement) {
-        inputPurchasedDateElement.textContent = 'No Data';
-    }
-    if (inputPurchasedSourceElement && latestEntry) {
-        inputPurchasedSourceElement.textContent = latestEntry.description || 'N/A'; // Assuming description is also available for latest entry
-    } else if (inputPurchasedSourceElement) {
-        inputPurchasedSourceElement.textContent = 'N/A';
+    if (totalBatches > 0) {
+        averagePerBatch = totalProduction / totalBatches;
+        averageWeightLost = totalWeightLost / totalBatches;
     }
 
-    // Update 'Pili Cracked' card
-    if (latestPiliCrackedKgElement) {
-        latestPiliCrackedKgElement.textContent = `${totalInputKg}kg`; // Assuming Pili Cracked shows the total input from the activity log
-    }
-    if (latestPiliCrackedDateElement && latestEntry) {
-        latestPiliCrackedDateElement.textContent = new Date(latestEntry.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    } else if (latestPiliCrackedDateElement) {
-        latestPiliCrackedDateElement.textContent = 'No Data';
+    // Update summary statistics cards
+    const totalBatchesElement = document.getElementById('totalBatches');
+    const totalShellWeightElement = document.getElementById('totalShellWeight');
+    const totalShellWeightDateElement = document.getElementById('totalShellWeightDate');
+    const totalNutWeightElement = document.getElementById('totalNutWeight');
+    const totalNutWeightDateElement = document.getElementById('totalNutWeightDate');
+    const totalProductionElement = document.getElementById('totalProduction');
+    const averagePerBatchElement = document.getElementById('averagePerBatch');
+    const latestBatchDateElement = document.getElementById('latestBatchDate');
+    const latestBatchWeightElement = document.getElementById('latestBatchWeight');
+
+    if (totalBatchesElement) {
+        totalBatchesElement.textContent = totalBatches;
     }
 
-    // Update 'Expected Sales' card
-    if (expectedSalesMainMetric) {
-        expectedSalesMainMetric.textContent = `₱${totalExpectedSales.toLocaleString('en-PH')}`;
+    if (totalShellWeightElement) {
+        totalShellWeightElement.textContent = `${totalShellWeight.toFixed(2)}kg`;
     }
-    if (expectedSalesPricePerKg) {
-        expectedSalesPricePerKg.textContent = `Price Per Kg: ₱${currentSellingPrice.toLocaleString('en-PH')}`;
+    if (totalShellWeightDateElement && latestBatch) {
+        const date = new Date(latestBatch.created_at);
+        totalShellWeightDateElement.textContent = `Last updated: ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    }
+
+    if (totalNutWeightElement) {
+        totalNutWeightElement.textContent = `${totalNutWeight.toFixed(2)}kg`;
+    }
+    if (totalNutWeightDateElement && latestBatch) {
+        const date = new Date(latestBatch.created_at);
+        totalNutWeightDateElement.textContent = `Last updated: ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    }
+
+    if (totalProductionElement) {
+        totalProductionElement.textContent = `${totalProduction.toFixed(2)}kg`;
+    }
+
+    if (averagePerBatchElement) {
+        averagePerBatchElement.textContent = `${averagePerBatch.toFixed(2)}kg`;
+    }
+
+    // Update average weight lost card
+    const averageWeightLostElement = document.getElementById('averageWeightLost');
+    if (averageWeightLostElement) {
+        averageWeightLostElement.textContent = `${averageWeightLost.toFixed(2)}kg`;
+    }
+
+    if (latestBatchDateElement && latestBatch) {
+        const date = new Date(latestBatch.created_at);
+        latestBatchDateElement.textContent = date.toLocaleDateString('en-US', { 
+            month: 'long', 
+            day: 'numeric', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } else if (latestBatchDateElement) {
+        latestBatchDateElement.textContent = 'No batches yet';
+    }
+
+    if (latestBatchWeightElement && latestBatch) {
+        latestBatchWeightElement.textContent = `${latestBatch.totalWeight.toFixed(2)}kg`;
+    } else if (latestBatchWeightElement) {
+        latestBatchWeightElement.textContent = '0kg';
+    }
+
+    // Update sales summary card
+    const totalSalesValueElement = document.getElementById('totalSalesValue');
+    const salesPricePerKgElement = document.getElementById('salesPricePerKg');
+
+    if (totalSalesValueElement) {
+        totalSalesValueElement.textContent = `₱${totalSalesValue.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    if (salesPricePerKgElement) {
+        salesPricePerKgElement.textContent = `Price per kg: ₱${currentSellingPrice.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    // Populate batches table
+    const batchesTableBody = document.getElementById('batchesTableBody');
+    if (batchesTableBody) {
+        batchesTableBody.innerHTML = '';
+
+        if (batchesData.length === 0) {
+            const row = batchesTableBody.insertRow();
+            row.innerHTML = `<td colspan="10" class="text-center py-4">No batches found.</td>`;
+        } else {
+            batchesData.forEach(batch => {
+                const row = batchesTableBody.insertRow();
+                const date = new Date(batch.created_at);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // Calculate sales value for this batch
+                const salesValue = batch.nutWeight * currentSellingPrice;
+                
+                // Format weight lost (show negative values in red or with minus sign)
+                const weightLostDisplay = batch.weightLost >= 0 
+                    ? batch.weightLost.toFixed(2) 
+                    : `<span style="color: #dc2626;">${batch.weightLost.toFixed(2)}</span>`;
+
+                row.innerHTML = `
+                    <td>${batch.id}</td>
+                    <td>${formattedDate}</td>
+                    <td>${batch.status || 'N/A'}</td>
+                    <td>${batch.inputWeight.toFixed(2)}</td>
+                    <td>${batch.shellWeight.toFixed(2)}</td>
+                    <td>${batch.nutWeight.toFixed(2)}</td>
+                    <td>${batch.totalWeight.toFixed(2)}</td>
+                    <td>${weightLostDisplay}</td>
+                    <td>₱${salesValue.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>${batch.note || 'N/A'}</td>
+                    <td>
+                        <button class="btn-sell" data-batch-id="${batch.id}">Sell</button>
+                    </td>
+                `;
+            });
+
+            // Add event listeners to sell buttons
+            document.querySelectorAll('.btn-sell').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const batchId = this.dataset.batchId;
+                    await window.sellBatch(batchId);
+                });
+            });
+        }
+    }
+
+    // Populate sales table
+    const salesTableBody = document.getElementById('salesTableBody');
+    if (salesTableBody) {
+        salesTableBody.innerHTML = '';
+
+        if (soldBatchesData.length === 0) {
+            const row = salesTableBody.insertRow();
+            row.innerHTML = `<td colspan="7" class="text-center py-4">No sales yet.</td>`;
+        } else {
+            soldBatchesData.forEach(batch => {
+                const row = salesTableBody.insertRow();
+                const soldDate = new Date(batch.finished_at);
+                const formattedSoldDate = soldDate.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // Calculate sales value for this batch (use price at time of sale or current price)
+                const salesValue = batch.nutWeight * currentSellingPrice;
+
+                row.innerHTML = `
+                    <td>${batch.id}</td>
+                    <td>${formattedSoldDate}</td>
+                    <td>${batch.shellWeight.toFixed(2)}</td>
+                    <td>${batch.nutWeight.toFixed(2)}</td>
+                    <td>${batch.totalWeight.toFixed(2)}</td>
+                    <td>₱${salesValue.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>${batch.note || 'N/A'}</td>
+                `;
+            });
+        }
+    }
+};
+
+// Function to sell a batch (make it globally accessible)
+window.sellBatch = async function(batchId) {
+    if (!window.supabase) {
+        console.error('Supabase client not initialized.');
+        alert('Error: Database connection not available.');
+        return;
+    }
+
+    if (!confirm('Are you sure you want to mark this batch as sold? It will be moved to the sales table.')) {
+        return;
+    }
+
+    // Update batch status to 'sold' and set finished_at timestamp
+    const { error } = await window.supabase
+        .from('batches')
+        .update({ 
+            status: 'sold',
+            finished_at: new Date().toISOString()
+        })
+        .eq('id', batchId);
+
+    if (error) {
+        console.error('Error selling batch:', error);
+        alert('Failed to sell batch. Please try again.');
+        return;
+    }
+
+    console.log('Batch sold successfully.');
+    
+    // Refresh the dashboard
+    if (typeof window.updateDashboardMetrics === 'function') {
+        await window.updateDashboardMetrics();
     }
 };
 
@@ -203,7 +504,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentSellingPriceInput = document.getElementById('currentSellingPrice');
     const saveSellingPriceBtn = document.getElementById('saveSellingPriceBtn');
     const cancelSellingPriceBtn = document.getElementById('cancelSellingPriceBtn');
-    const expectedSalesCard = document.querySelector('.expected-sales-card');
+    const totalSalesValueCard = document.getElementById('totalSalesValueCard');
     const sellingPriceMessage = document.getElementById('sellingPriceMessage');
 
     // Function to load selling price from Supabase (internal to this script)
@@ -268,10 +569,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- Modal Event Listeners ---
-    if (expectedSalesCard) {
-        expectedSalesCard.addEventListener('click', async function() { // Made async
+    // Make Total Sales Value card clickable to update selling price
+    if (totalSalesValueCard) {
+        totalSalesValueCard.style.cursor = 'pointer';
+        totalSalesValueCard.addEventListener('click', async function() {
             priceModal.classList.remove('hidden');
-            currentSellingPriceInput.value = await loadSellingPriceInternal(); // Pre-fill with current value
+            currentSellingPriceInput.value = await loadSellingPriceInternal();
             currentSellingPriceInput.focus();
             sellingPriceMessage.classList.add('hidden');
         });

@@ -364,6 +364,25 @@ justify-content: flex-end;
     justify-content: center;
 }
 
+/* Stat Cards */
+.stat-card {
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Clickable stat card (for Total Sales Value) */
+#totalSalesValueCard {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#totalSalesValueCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
 /* Production History Card */
 .production-history-card {
     /* Auto placed */
@@ -753,6 +772,28 @@ justify-content: flex-end;
     background-color: #E5E7EB;
 }
 
+/* Sell Button */
+.btn-sell {
+    background-color: #D7FF5C;
+    color: #18191D;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-sell:hover {
+    background-color: #c4e64a;
+    transform: translateY(-1px);
+}
+
+.btn-sell:active {
+    transform: translateY(0);
+}
+
 .arrow {
     font-size: 1.1rem;
 }
@@ -971,6 +1012,35 @@ justify-content: flex-end;
     border-bottom: none;
 }
 
+/* Batches table styling */
+.batches-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.batches-table th,
+.batches-table td {
+    padding: 0.8rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    color: #525459;
+}
+
+.batches-table th {
+    font-weight: 600;
+    color: #18191D;
+}
+
+.batches-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.batches-table-card {
+    overflow-x: auto;
+}
+
 /* table-responsive class for horizontal scrolling on small screens */
 .table-responsive {
     overflow-x: auto;
@@ -1163,6 +1233,202 @@ justify-content: flex-end;
         max-width: 500px;
     }
 }
+
+
+
+
+
+
+
+
+
+
+/*  ----- ACCOUNT -----  */
+
+/* Container holding both columns */
+.form-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+    
+}
+
+/* 1ST COLUMN */
+.login-column {
+    width: 48%; 
+}
+
+.login-column h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.login-column input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: transparent;
+    border: solid 1px #000000 ;
+    font-size: 16px;
+}
+
+
+
+/* Apply padding to the input container */
+.input-container {
+    padding-bottom: 50px;
+}
+
+.login-column .login-btn {
+    width: 100%;
+    cursor: pointer;
+    padding: 15px;
+    font-size: 1rem;
+    color: black;
+    border-radius: 10px;
+    background-color: #D9F56B;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.login-column .login-btn:hover {
+    color: black;
+    background-color: transparent;
+    border-color: black;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.login-column p a {
+    padding-top: 20px;
+    font-size: 13px;
+    color: #525459;
+    text-decoration: none;
+}
+
+/* 2ND COLUMN */
+.register-column {
+    width: 48%;
+    text-align: center;
+}
+
+.register-column h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.register-column .register-btn {
+    cursor: pointer;
+    padding: 15px;
+    font-size: 1rem;
+    color: white;
+    border-radius: 50px;
+    padding-left: 30px;
+    padding-right: 30px;
+    background-color: #525459;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.register-column .register-btn:hover {
+    color: black;
+    background-color: transparent;
+    border-color: black;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Media Query for Small Screens (Single Column layout) */
+@media (max-width: 768px) {
+    .form-container {
+        flex-direction: column; /* Stack columns vertically */
+        align-items: center; /* Center the content */
+    }
+
+    .login-column, .register-column {
+        width: 100%; /* Make both columns take full width */
+        margin-bottom: 20px; /* Add some space between sections */
+    }
+
+    .input-container {
+        padding-bottom: 20px; /* Adjust padding for smaller screens */
+    }
+}
+
+
+
+
+
+.register-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.register-container {
+    width: 100%;
+    max-width: 500px;
+    background-color: #fdfdfd;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.register-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.register-form .form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.register-form label {
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.register-form input {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.btn-register {
+    padding: 10px;
+    font-size: 1rem;
+    color: white; 
+    background-color: #525459; 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-register:hover {
+    color: black;
+    background-color: transparent; 
+    border-color: black;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

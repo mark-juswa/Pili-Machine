@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const crackButton = document.getElementById('crackPiliBtn');
     const cancelButton = document.getElementById('cancelProductionBtn');
     const weightToCrackInput = document.getElementById('weightToCrack');
-    const priceInput = document.getElementById('price'); // This is price_per_kg_input
+    const shellWeightInput = document.getElementById('shellWeight');
     const descriptionInput = document.getElementById('description');
 
     // Elements for the Crack Success Modal
@@ -11,28 +11,73 @@ document.addEventListener('DOMContentLoaded', function() {
     const crackSuccessMessage = document.getElementById('crackSuccessMessage');
     const closeCrackSuccessBtn = document.getElementById('closeCrackSuccessBtn');
 
-    // Function to load activity log data from Supabase
+    // Function to load activity log data from Supabase (batches with shell and nut readings)
     async function loadActivityLogFromSupabase() {
         if (!window.supabase) {
             console.error('Supabase client not initialized.');
             return [];
         }
-        const { data, error } = await window.supabase
-            .from('production_logs')
-            .select('*')
-            .order('date', { ascending: false }); // Order by date descending
 
-        if (error) {
-            console.error('Error fetching production logs:', error);
+        // Fetch batches with their shell and nut readings
+        const { data: batches, error: batchesError } = await window.supabase
+            .from('batches')
+            .select('id, created_at, status, note')
+            .order('created_at', { ascending: false });
+
+        if (batchesError) {
+            console.error('Error fetching batches:', batchesError);
             return [];
         }
-        return data.map(entry => ({
-            date: entry.date,
-            inputKg: parseFloat(entry.input_kg),
-            price: parseFloat(entry.price_per_kg_input), // Renamed for consistency with old code
-            description: entry.description || '',
-            id: entry.id // Store Supabase ID for deletion
-        }));
+
+        // For each batch, fetch shell and nut readings
+        const batchesWithReadings = await Promise.all(
+            batches.map(async (batch) => {
+                // Fetch shell readings for this batch
+                const { data: shellReadings, error: shellError } = await window.supabase
+                    .from('shell_readings')
+                    .select('id, weight')
+                    .eq('batch_id', batch.id);
+
+                if (shellError) {
+                    console.error(`Error fetching shell readings for batch ${batch.id}:`, shellError);
+                }
+
+                // Fetch nut readings for this batch
+                const { data: nutReadings, error: nutError } = await window.supabase
+                    .from('nut_readings')
+                    .select('id, weight')
+                    .eq('batch_id', batch.id);
+
+                if (nutError) {
+                    console.error(`Error fetching nut readings for batch ${batch.id}:`, nutError);
+                }
+
+                // Calculate totals
+                const shellWeight = shellReadings
+                    ? shellReadings.reduce((sum, reading) => sum + parseFloat(reading.weight || 0), 0)
+                    : 0;
+                const nutWeight = nutReadings
+                    ? nutReadings.reduce((sum, reading) => sum + parseFloat(reading.weight || 0), 0)
+                    : 0;
+                const totalWeight = shellWeight + nutWeight;
+
+                // Get the first reading ID for deletion (we'll delete the batch which cascades)
+                const firstNutReadingId = nutReadings && nutReadings.length > 0 ? nutReadings[0].id : null;
+
+                return {
+                    id: batch.id,
+                    created_at: batch.created_at,
+                    status: batch.status,
+                    note: batch.note || '',
+                    shellWeight: shellWeight,
+                    nutWeight: nutWeight,
+                    totalWeight: totalWeight,
+                    firstNutReadingId: firstNutReadingId
+                };
+            })
+        );
+
+        return batchesWithReadings;
     }
 
     // Function to render activity log data
@@ -42,19 +87,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (activityLogData.length === 0) {
             const row = activityLogTableBody.insertRow();
-            row.innerHTML = `<td colspan="5" class="text-center py-4">No production activity yet.</td>`;
+            row.innerHTML = `<td colspan="7" class="text-center py-4">No production activity yet.</td>`;
             return;
         }
 
         activityLogData.forEach((entry) => {
             const row = activityLogTableBody.insertRow();
+            const date = new Date(entry.created_at);
+            const formattedDate = date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
             row.innerHTML = `
-                <td>${entry.date}</td>
-                <td>${entry.inputKg}</td>
-                <td>₱${entry.price.toLocaleString('en-PH')}</td>
-                <td>${entry.description}</td>
+                <td>${entry.id}</td>
+                <td>${formattedDate}</td>
+                <td>${entry.shellWeight.toFixed(2)}</td>
+                <td>${entry.nutWeight.toFixed(2)}</td>
+                <td>${entry.totalWeight.toFixed(2)}</td>
+                <td>${entry.note}</td>
                 <td>
-                    <img src="images/delete.png" alt="Delete" class="delete-icon" data-id="${entry.id}">
+                    <img src="images/delete.png" alt="Delete" class="delete-icon" data-batch-id="${entry.id}" data-nut-reading-id="${entry.firstNutReadingId || ''}">
                 </td>
             `;
         });
@@ -65,72 +121,119 @@ document.addEventListener('DOMContentLoaded', function() {
     function addDeleteEventListeners() {
         document.querySelectorAll('.delete-icon').forEach(icon => {
             icon.onclick = async function() {
-                const id = this.dataset.id;
-                await deleteActivityLogEntry(id);
+                const batchId = this.dataset.batchId;
+                const nutReadingId = this.dataset.nutReadingId;
+                await deleteActivityLogEntry(batchId, nutReadingId);
             };
         });
     }
 
-    // Function to delete activity log entry from Supabase
-    async function deleteActivityLogEntry(id) {
+    // Function to delete a batch and all its readings
+    async function deleteActivityLogEntry(batchId, nutReadingId) {
         if (!window.supabase) {
             console.error('Supabase client not initialized.');
             return;
         }
-        const { error } = await window.supabase
-            .from('production_logs')
-            .delete()
-            .eq('id', id);
 
-        if (error) {
-            console.error('Error deleting production log:', error);
-            alert('Failed to delete entry. Please try again.');
-        } else {
-            console.log('Production log deleted successfully.');
-            await renderActivityLog(); // Re-render the table
-            if (typeof window.updateDashboardMetrics === 'function') {
-                window.updateDashboardMetrics(); // Refresh dashboard metrics
-            }
+        if (!batchId) {
+            alert('Invalid batch ID.');
+            return;
+        }
+
+        // Delete all shell readings for this batch
+        const { error: shellDelErr } = await window.supabase
+            .from('shell_readings')
+            .delete()
+            .eq('batch_id', batchId);
+        if (shellDelErr) {
+            console.error('Error deleting shell readings:', shellDelErr);
+        }
+
+        // Delete all nut readings for this batch
+        const { error: nutDelErr } = await window.supabase
+            .from('nut_readings')
+            .delete()
+            .eq('batch_id', batchId);
+        if (nutDelErr) {
+            console.error('Error deleting nut readings:', nutDelErr);
+            alert('Failed to delete readings. Please try again.');
+            return;
+        }
+
+        // Delete the batch itself
+        const { error: batchDelErr } = await window.supabase
+            .from('batches')
+            .delete()
+            .eq('id', batchId);
+        if (batchDelErr) {
+            console.error('Error deleting batch:', batchDelErr);
+            alert('Failed to delete batch. Please try again.');
+            return;
+        }
+
+        console.log('Batch and all readings deleted successfully.');
+        await renderActivityLog();
+        if (typeof window.updateDashboardMetrics === 'function') {
+            window.updateDashboardMetrics();
         }
     }
 
     // Function to add new activity log entry to Supabase
-    async function addActivityLogEntry(weight, price, description) {
+    async function addActivityLogEntry(weight, shellWeight, description) {
         if (!window.supabase) {
             console.error('Supabase client not initialized.');
             return false;
         }
 
         const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        const formattedDate = `${yyyy}-${mm}-${dd}`;
-
-        const { data, error } = await window.supabase
-            .from('production_logs')
+        // 1) Create batch
+        const { data: batchData, error: batchErr } = await window.supabase
+            .from('batches')
             .insert([
                 {
-                    date: formattedDate,
-                    input_kg: parseFloat(weight),
-                    price_per_kg_input: parseFloat(price),
-                    description: description || ''
-                    // You might add cracked_output_kg and expected_sales_value here if you capture them
+                    device_id: 'web',
+                    created_at: today.toISOString(),
+                    status: 'completed',
+                    note: description || null
                 }
-            ]);
-
-        if (error) {
-            console.error('Error adding production log:', error);
-            alert('Failed to add entry. Please check console for details.');
+            ])
+            .select('id')
+            .single();
+        if (batchErr || !batchData) {
+            console.error('Error creating batch:', batchErr);
+            alert('Failed to create batch.');
             return false;
-        } else {
-            console.log('Production log added successfully:', data);
-            await renderActivityLog(); // Re-render the table
-            if (typeof window.updateDashboardMetrics === 'function') {
-                window.updateDashboardMetrics(); // Refresh dashboard metrics
-            }
-            return true;
         }
+        const batchId = batchData.id;
+
+        // 2) Insert nut reading
+        const { error: nutErr } = await window.supabase
+            .from('nut_readings')
+            .insert([{ batch_id: batchId, timestamp: today.toISOString(), weight: parseFloat(weight), note: description || null }]);
+        if (nutErr) {
+            console.error('Error inserting nut reading:', nutErr);
+            alert('Failed to add nut reading.');
+            return false;
+        }
+
+        // 3) Optionally insert shell reading
+        const sw = parseFloat(shellWeight);
+        if (!isNaN(sw) && sw > 0) {
+            const { error: shellErr } = await window.supabase
+                .from('shell_readings')
+                .insert([{ batch_id: batchId, timestamp: today.toISOString(), weight: sw, note: description || null }]);
+            if (shellErr) {
+                console.error('Error inserting shell reading:', shellErr);
+                // continue without blocking
+            }
+        }
+
+        console.log('Batch and readings added successfully');
+        await renderActivityLog();
+        if (typeof window.updateDashboardMetrics === 'function') {
+            window.updateDashboardMetrics();
+        }
+        return true;
     }
 
     // --- Functionality for Input Fields and Buttons ---
@@ -145,19 +248,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (crackButton) {
         crackButton.addEventListener('click', async function() {
             const weight = weightToCrackInput.value;
-            const price = priceInput.value;
+            const shellWeight = shellWeightInput ? shellWeightInput.value : '';
             const description = descriptionInput.value;
 
             if (!weight || isNaN(weight) || parseFloat(weight) <= 0) {
                 alert('Please enter a valid weight to crack (must be a positive number).');
                 return;
             }
-            if (!price || isNaN(price) || parseFloat(price) <= 0) {
-                alert('Please enter a valid price (cost per kg of input, must be a positive number).');
-                return;
-            }
 
-            const success = await addActivityLogEntry(weight, price, description);
+            const success = await addActivityLogEntry(weight, shellWeight, description);
 
             if (success) {
                 // Show success modal
@@ -166,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Clear inputs after cracking
                 weightToCrackInput.value = '0'; // Reset auto-detected
-                priceInput.value = '';
+                if (shellWeightInput) shellWeightInput.value = '';
                 descriptionInput.value = '';
 
                 // Automatically hide success modal after 2 seconds
@@ -180,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cancelButton) {
         cancelButton.addEventListener('click', function() {
             weightToCrackInput.value = '0';
-            priceInput.value = '';
+            if (shellWeightInput) shellWeightInput.value = '';
             descriptionInput.value = '';
         });
     }

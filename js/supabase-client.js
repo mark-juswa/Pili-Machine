@@ -1,6 +1,6 @@
 // Replace with your actual Supabase Project URL and anon key
-const SUPABASE_URL = 'https://cnlkgbvpppqdbtrbywfo.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubGtnYnZwcHBxZGJ0cmJ5d2ZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0Mjg0NjksImV4cCI6MjA2OTAwNDQ2OX0._OuHsRxF5K6xMb_FITHpEUjz_RXPqr5YaBG4qyxyn1s';
+const SUPABASE_URL = 'https://oxscpolpirvhtizamrjj.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94c2Nwb2xwaXJ2aHRpemFtcmpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzODA4MjYsImV4cCI6MjA3MDk1NjgyNn0.JW4U_ljHHmE7Gb46OIJwjgQ1foCy1H6lfvX3FLxllJU';
 
 
 let supabaseClient = null;

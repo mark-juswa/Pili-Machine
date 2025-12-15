@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Pixelify+Sans:wght@400..700;1,400..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/x-icon" href="images/Logo.png">
+    <title>Account</title>
+<body class="bg-beige poppins ">
+    <body class="bg-beige poppins" >
+    <nav class="navbar">
+        <ul class="nav-list">
+            <li class="nav-item active"> <a class="nav-link" href="index.html">HOME</a></li>
+          <!-- <li class="nav-item"> <a class="nav-link" href="#about">ABOUT</a></li> --> 
+            <li class="nav-item"><a class="nav-link" href="index.html#dashboard">DASHBOARD</a></li>
+            <li class="nav-item"><a class="nav-link" href="index.html#reports">REPORTS</a></li>
+            <li class="nav-item"><a class="nav-link" href="index.html#contact">CONTACT</a></li>
+            <li class="nav-item"><a class="nav-link" href="account.html">ACCOUNT</a></li>
+        </ul>
+    
+        <div class="hamburger-nav">
+            <div class="menu-logo" onclick="toggleMenu()">
+                <img src="images/menu.png" alt="Menu">
+            </div>
+    
+            <div id="dropdown-menu" class="drop-down-menu hidden">
+                <ul class="smallnav-container">
+                    <li><a href="index.html#home" class="smallnav-links">HOME</a></li>
+                    <!-- <li><a href="#about" class="smallnav-links">ABOUT</a></li> -->
+                    <li><a href="index.html#dashboard" class="smallnav-links">DASHBOARD</a></li>
+                    <li><a href="index.html#reports" class="smallnav-links">REPORTS</a></li>
+                    <li><a href="index.html#contact" class="smallnav-links">CONTACT</a></li>
+                    <li><a href="account.html" class="smallnav-links">ACCOUNT</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <section class="register-section">
+    <div class="register-container">
+        <h2 class="register-title">Create Your Account</h2>
+        <form action="register_process.php" method="POST" class="register-form">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm password" required>
+            </div>
+
+            <button type="submit" class="btn-register pixel">Register</button>
+        </form>
+    </div>
+</section>
+
+
+
+
+    <script>
+        function toggleMenu() {
+        const dropdownMenu = document.getElementById("dropdown-menu");
+        if (dropdownMenu.classList.contains("hidden")) {
+            dropdownMenu.classList.remove("hidden");
+            dropdownMenu.style.maxHeight = "600px"; // Adjust height as needed
+        } else {
+            dropdownMenu.classList.add("hidden");
+            dropdownMenu.style.maxHeight = "0px";
+        }
+    }
+    </script>
+</html>
